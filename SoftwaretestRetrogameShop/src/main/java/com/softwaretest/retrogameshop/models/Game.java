@@ -25,6 +25,24 @@ public class Game {
         this.genre = genre;
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (!obj.getClass().getCanonicalName().equals(this.getClass().getCanonicalName())){
+            return false;
+        }
+        else{
+            Game game = (Game) obj;
+            if(
+                            game.getGenre().equals(this.genre) &&
+                            game.getReleaseYear().equals(this.getReleaseYear()) &&
+                            game.getTitle().equals(this.getTitle())
+            ){
+                return true;
+            }
+        }
+        return false;
+    }
+
     public Long getId() {
         return id;
     }
