@@ -6,10 +6,9 @@ import com.softwaretest.retrogameshop.models.Game;
 import com.softwaretest.retrogameshop.services.MainInformationService;
 import com.softwaretest.retrogameshop.services.MainInformationServiceImpl;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,7 +37,7 @@ public class MainRestController {
     }
 
     @PostMapping("rest/add-game")
-    public ResponseEntity<Game> addNewGame(DTOGame dtoGame){
+    public ResponseEntity<Game> addNewGame(@Valid @RequestBody DTOGame dtoGame){
         Game game = DTOGameTransformer.transformDTOGameToGame(dtoGame);
         Game recordedGame = mainInformationService.addNewGame(game);
         if(recordedGame == null){

@@ -1,9 +1,12 @@
 package com.softwaretest.retrogameshop.controllers.dtos;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 public class DTOGame {
     private Long id;
+    @NotBlank
     private String title;
     private Integer releaseYear;
     private String genre;

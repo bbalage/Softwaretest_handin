@@ -1,6 +1,7 @@
 package com.softwaretest.retrogameshop.models;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @Entity
@@ -10,6 +11,7 @@ public class Game {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
+    @NotNull
     private String title;
     private Integer releaseYear;
     private String genre;
