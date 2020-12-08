@@ -5,6 +5,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 @Entity
+@Table(name = "customer")
 public class Customer {
 
     @Id
@@ -14,10 +15,21 @@ public class Customer {
     private String address;
     private String phoneNumber;
     @ManyToMany
+    @JoinTable(
+            name = "purchases",
+            joinColumns = @JoinColumn(name = "customer_id"),
+            inverseJoinColumns = @JoinColumn(name = "game_id")
+    )
     private List<Game> purchases;
 
     public Customer(){
         super();
+    }
+
+    public Customer(String name, String address, String phoneNumber){
+        this.name = name;
+        this.address = address;
+        this.phoneNumber = phoneNumber;
     }
 
     public Long getId() {

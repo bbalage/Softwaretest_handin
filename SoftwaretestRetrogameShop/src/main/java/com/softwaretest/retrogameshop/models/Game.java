@@ -4,6 +4,7 @@ import javax.persistence.*;
 import java.util.List;
 
 @Entity
+@Table(name = "game")
 public class Game {
 
     @Id
@@ -13,6 +14,11 @@ public class Game {
     private Integer releaseYear;
     private String genre;
     @ManyToMany
+    @JoinTable(
+            name = "purchases",
+            joinColumns = @JoinColumn(name = "game_id"),
+            inverseJoinColumns = @JoinColumn(name = "customer_id")
+    )
     private List<Customer> purchases;
 
     public Game(){
