@@ -1,0 +1,125 @@
+\documentclass[a4paper, 12 pt]{article}
+\usepackage[hungarian]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[margin=1.5in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+
+\title{Spring alkalmazások tesztelése}
+\date{\today}
+\author{Bolyki Balázs}
+
+\begin{document}
+\pagenumbering{gobble}
+\maketitle
+\newpage
+\tableofcontents
+\newpage
+\pagenumbering{arabic}
+Spring Boot alkalmazások tesztelése
+
+\section{Bevezetés} \label{sec_intro}
+A Spring keretrendszer egy elterjedt, rugalmas és könnyen használható keretrendszer, 
+ami a Java alapon történő webfejlesztést segíti. Lecsökkenti az általános kódok mennyiségét.
+A Spring keretrendszer Inversion of Control alapokon nyugszik, és annotációkkal valósítja ennek
+a funkcióit. Alapvetően a keretrendszer végzi az irányító munkát, és a fejlesztő annotációk 
+segítségével adja meg, hogy a keretrendszer az adott eseményre mely funkciókat kell, hogy végrehajtsa. 
+Alkalmazza az MVC modellt, a réteges alkalmazás fejlesztést. Alapvetően a legtöbb általánosan szükséges funkció, kapcsolatok a keretrendszerben már készen vannak, így a fejlesztőre az endpoint-ok akcióinak, az üzleti logikának, a domain-nek és az adatbázis rétegnek a megírása, felkonfigurálása marad.
+A tesztelés támogatásához a Spring keretrendszer szintén annotációkat használ. Támogatja a Unit 
+teszteket utánzó osztályok segítségével (csak azt a réteget hozzuk létre, amit épp tesztelünk, a többit utánozzuk), a részleges integrációs teszteket, továbbá a teljes back-end integrációs tesztjeit is.
+A Spring keretrendszer fejlesztésének kézenfekvő megvalósítása Maven-ben történik, amivel kezelhetjük a szoftver életciklusát, függőségeit, tesztelését, telepítését.
+Ebben a jegyzőkönyvben a Spring keretrendszer különböző rétegeinek tesztelési módjait fejtem ki, és az ezekre a tesztekre írt példákat mutatom be. A tartalom általánosan:
+
+
+
+2. Spring alkalmazások tesztelése
+A webes alkalmazások, így a Spring keretrendszerben íródott alkalmazások tervezésekor is fontos a megfelelő modularizáció. Tipikusan a következő alkalmazás logikai rétegek élnek a termelésben:
+    • Domain (model)
+    • Persistence (repositories)
+    • Service
+    • Controller
+    • View
+A domain azokat az objektumokat tartalmazza, amelyek az alkalmazás tématerületéhez tartozó entitásokat reprezentálják, például Customer, User, Product, stb.
+A persistence réteg azért felelős, hogy ezeknek az objektumoknak az adatbázisban tárolása megvalósuljon. Tipikusan JPA (Hibernate) segítségével a Java objektumokat adatbázisbeli tábláknak feleltetjük meg, és gondoskodunk a mentésükről, előhívásukról.
+A service réteg az üzleti logikát adja az alkalmazáshoz.
+A controller osztályok szolgáltatják a megfelelő mappinget a service rétegben nyújtott szolgáltatások, és a weben keresztül elérhetővé tett, megjelenő réteg között. A view réteg a megjelenő weboldalak, minták részét adják.
+Teszteléskor igyekszünk ezeket a rétegeket tesztelni külön-külön (egységteszt), a kapcsolataikat tesztelni (kevesebb kapcsolatot igénylő teszt), és az egész rendszert együtt tesztelni (integrációs teszt).
+A fő kérdés, hogy hogyan tudjuk szétosztani a különböző teszteket attól függően, hogy milyen rétegekre vonatkoznak.
+A Spring keretrendszer tesztelést segítő funkciói elsősorban a back-end résszel foglalkoznak, ezért a view réteg tesztjét itt nem veszem bele az összefoglalásba. A teszt függvények alapvetően a megszokott @Test annotációval vannak jelölve.
+2.1. Persistence réteg tesztelése
+A persistence réteg tesztelésekor tulajdonképpen adatbázis műveleteket tesztelünk. Ez egy integrációs teszt, amely a kódunk és az adatbázis közötti illeszkedés helyességét vizsgálja. A teszteléshez azonban először szükségünk van az adatbázisra is.
+Az adatbázisok tesztelésekor a keretrendszer lehetőséget biztosít nekünk, hogy annotációval jelöljük az adatbázis teszteket. Ilyenkor minden teszt case után az adatbázissal végzett tranzakciók visszavonódnak. Így a keretrendszer megoldja nekünk, hogy a teszt esetek ne legyenek hatással egymásra. Nincs szükség tehát arra, hogy a tesztek adatbázisra való kihatása miatt külön adatbázist használjunk, mint az üzemeltetés során. Más okból viszont javasolt.
+Javasolt külön adatbázist használni teszteléshez és a normál üzemhez. Ennek oka, hogy a normál adatbázisunk perzisztenciát valósít meg, feltehetően sok rekorddal, háttértár műveletekkel (például MySQL). A tesztjeinket azonban minél gyorsabbá akarjuk tenni, és éppenhogy kikerüljük a perzisztenciát is, ezért nincs szükségünk se nagy adatbázisra, se háttértár műveletekre. Ezért érdemes egy in-memory adatbázist használni, ami a memóriában tárolódik, és a tesztek után el is felejtődnek az adatai (például H2 adatbázis).
+Spring keretrendszerben Repository interfészek szolgálnak az adatbázis megszólítására. A keretrendszerben a @DataJpaTest annotációt használjuk az adatbázis integrációs tesztek megjelölésére, továbbá az @Autowired annotációval automatikusan beinjektálhatjuk a repository interfészeket. Tesztelhetjük továbbá az adatforrásunkat is, tipikusan, hogy nem-e null értékű, vagyis, hogy esetleg sikertelen volt-e az adatbázissal való kapcsolatfelvétel.
+2.2. Service réteg
+A Service réteg tesztelése elsősorban Unit tesztekkel történik. Mivel a Spring keretrendszer az alkalmazásunk indításakor megvalósítja az osztályszerkezetünk felállítását, továbbá elindít egy alkalmazás szervert is (Tomcat szerver), így a tesztelés tényleges tesztkód része rendkívül kis ideig futna ahhoz képest, amennyi időt az egész rendszer felállítása igénybe venne. Ezeknél a teszteknél tehát alapvetően az a célunk, hogy a Spring alkalmazás Unit tesztjét a Spring nélkül végezzük el.
+Ehhez használunk fel utánzó könyvtárakat, jelen esetben a Mockito library-t. Ennek az a feladata, hogy a nem a tesztelt egységünkbe tartozó külső dependenciákat leutánozza, ezzel megkímélve a rendszerünket attól, hogy ezeket a dependenciákat létre kelljen hoznia. Például a következő kódrészlet egy repository függőséget utánoz le:
+private MyRepository myRepository = Mockito.mock(MyRepository.class);
+Mivel a service réteg az, amely megszólítja a persistence réteget, a service réteg külső függőségei alapvetően az itt lévő Repository interfészek. A service réteg feladata, hogy a Controller objektumoktól érkező kéréseket a megfelelő üzleti logikával a megfelelő persistence rétegbeli Repository-hoz vigye, aztán a megfelelő eredménnyel térjen vissza. A normál működés során az adott Controller objektum a publikus metódusain keresztül megszólítja az adott service rétegbeli objektumot, amely bizonyos üzleti logikai műveletek mellett megszólítja a persistence réteg Repository interfészeit is.
+A Spring keretrendszer normál működés során automatikusan létrehozza a Repository interfészeket implementáló osztályokat, amelyeket a Service osztályokban elhelyez, ha erre jelölést adtunk neki. A teszteknél azonban kikerüljük ezeket a plusz műveleteket, és a Repository interfészt megvalósító osztály objektuma helyett az utánzó objektummal hozzuk létre a Service osztályt. Ezután a tesztből szólíthatjuk meg a service réteg osztályát, és ellenőrizhetjük a visszaadott értékét.
+2.3. Controller réteg tesztje: WebMVC
+A Controller osztályoknak sok feladata van. HTTP kéréseket hallgat, a kérésekkel érkező inputot valid java objektumokká alakítja, aztán ezekre meghívja az üzleti logikát megvalósító függvényeket (service réteg). Ezt követően szükséges a visszatérési értékeket, amelyek java objektumok, HTTP kérésekké szerializálni, és ezeket küldeni vissza. Az összes funkcióját nem lehet teljes egészében lefedni Unit tesztekkel.
+A Spring keretrendszer lehetőséget biztosít nekünk arra, hogy a teszteléshez csak azokat az objektumokat hozzuk létre, vagyis az alkalmazásnak csak azon részét üzemeljük be, amire ténylegesen szükség van. Ehhez használjuk a @WebMvcTest(…) annotációt, amelynek a paraméterébe megadhatjuk, hogy konkrétan melyik osztályokat szeretnénk, hogy “jelen legyenek” a teszt során. Ezekkel az osztályokkal fogunk kapni egy részkörnyezetet, amelyben a tesztünket megvalósíthatjuk.
+A MockMvc osztály szolgál arra, hogy leutánozza nekünk a HTTP kéréseket. Ezt használhatjuk például a következőképpen:
+mockMvc.perform(post(“/rest/example-action”).contentType(“application/json”))
+		.andExpect(status().isOk());
+Ez a művelet egy post kérést intéz a keretrendszer felé, a “/rest/example-action” mintával. Ha a részkörnyezetben létezik olyan Controller osztály, amely ezt a kérést kezeli (tehát van olyan @Controller vagy @RestController annotációval ellátott osztály, amelynek az egyik metódusát @Postmapping(“/rest/example-action”) vagy @RequestMapping(“/rest/example-action”) annotációval látták el), akkor a keretrendszer megszólítja az adott osztály adott metódusát. Ha a metódus 200-as kódú (OK) HTTP kéréssel tér vissza, akkor a teszt helyesen zajlott le.
+Megtehetjük azt, hogy helytelen kérések esetén más kódokra várunk, 403, 404, 422, stb. Fontos azonban megjegyezni, hogy @WebMvcTest(…) esetekben nem hozunk létre Service osztályokat, hanem ezeket is leutánozzuk, hasonlóan ahhoz, ahogy leutánoztuk a Repository interfészt implementáló osztályokat a service réteg tesztjében (a később hozott gyakorlati példában a Service osztály utánzása a @MockBean annotáció segítségével történik). Ez azért van, mert ebben a tesztben nem az integrációt teszteljük az üzleti logika rétege és a controller réteg között, hanem azt, hogy a controller réteg osztályai helyesen reagálnak-e a HTTP kérésekre, tehát például megtörténik-e a deszerializáció JSON formátumból java osztályokká, stb.
+2.4. Integrációs teszt (teljes)
+Míg az eddigi esetek igyekeztek kisebb területeire szorítkozni az alkalmazásnak, addig az integrációs teszt lényege, hogy a teljes alkalmazási struktúrát felölelje, és minden osztály létrejöjjön. Ezeknek a teszteknek elsősorban a rendszerek együttműködési képességét kell tesztelnie. Tulajdonságuk, hogy tovább tartanak, mint a Unit tesztek, vagy a kevesebb egységet felölelő integrációs tesztek. Ezért tehát, amit lehet, azt integrációs teszten kívül kell megoldani.
+Spring keretrendszerben a @SpringBootTest annotáció jelöli azokat a teszteket, amelyek a teljes back-end rétegszerkezet felállítására támaszkodnak a futásukhoz (vagyis a view réteg kivételével minden létrejön: contoller, service, persistence, domain). Így a HTTP kérés megérkezésétől a válaszig mindent tesztelhetünk, ami az alkalmazásunkban történik.
+Ehhez továbbra is használjuk a MockMvc osztályt, amely a HTTP kérés érkezését szimulálja, utánozza. Ehhez érdemes a keretrendszer automatikus konfigurációs lehetőségét, az @AutoConfigureMockMvc annotációt használni.
+2.5. Maven használata a tesztekhez
+A Maven szoftver projekt menedzselő eszköz az egyik kézenfekvő módja a Spring alkalmazások fejlesztése során a függőségek kezelésének, építésnek, tesztelésnek, telepítésnek (másik jól támogatott mód a Gradle build tool). A Maven segítségével könnyen tudjuk a projekthez adni a tesztekhez szükséges különböző könyvtárakat, és magát a Spring keretrendszert is egyszerűen linkelhetjük.
+További előnye a tesztelésben rejlik. A Maven a szoftverkészítés életciklusát veszi alapul, és parancsokat szolgáltat a különböző életciklusok megvalósítására. Életciklusok Mavenben például (nem teljes lista):
+    • clean
+    • validate
+    • compile
+    • test
+    • package
+    • verify
+    • install
+    • site
+    • deploy
+Az életciklusokhoz kötötten történő fejlesztéskor a különböző ciklusokat sorra ismételgetjük, míg az adott verzió el nem jut abba a fázisba, ahol telepítjük, közzé tesszük. A tesztelés tehát Maven-ben egy gyakran ismételt életciklus fázis. Ennél a fázisnál a Maven surefire plugin-ja sorra lefuttatja az általa talált teszt osztályok tesztjeit. Alapértelmezetten a surefire plugin minden olyan osztályt vesz teszt osztálynak, amely Test, Tests vagy TestCase végződéssel rendelkezik, de ez megváltoztatható a pom.xml fájlban. Ezenfelül működik JUnit, TestNG és Plain Old Java Object esetén is. A mi esetünkben JUnit Jupiter lett felhasználva (junit-jupiter-engine).
+3. Gyakorlati példa a tesztesetre
+Ebben a pontban egy általam létrehozott Spring alkalmazás tesztjeit mutatom be. A cél a fönt megemlített tesztelési aspektusokra példát hozni.
+3.1. A tesztelt alkalmazás
+A tesztelt alkalmazás egy retro játék bolt adatait kezeli, és biztosít interfészt a változtatásaikhoz. Az alkalmazás rendelkezik adatbázis kapcsolattal, amely perzisztenciához MySQL, míg teszteléshez H2. Az adatbázisban tárolt 
+
+
+
+
+
+
+
+Notes:
+1. Repository és adatbázis tesztek téma. OK
+2. 
+
+
+
+
+
+
+
+
+
+
+
+
+Sources:
+https://www.baeldung.com/spring-boot-testing
+https://spring.io/guides/
+http://zetcode.com/springboot/datajpatest/
+https://reflectoring.io/spring-boot-data-jpa-test/
+https://reflectoring.io/spring-boot-web-controller-test/
+https://reflectoring.io/spring-boot-mock/
+https://reflectoring.io/spring-boot-test/
+https://reflectoring.io/unit-testing-spring-boot/
+https://maven.apache.org/
+
+
+
+
+\end{document}
