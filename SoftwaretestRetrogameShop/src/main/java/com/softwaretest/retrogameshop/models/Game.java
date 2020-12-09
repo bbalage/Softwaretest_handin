@@ -24,6 +24,8 @@ public class Game {
     )
     private List<Customer> purchases;
 
+    //constructors, getters and setters...
+
     public Game(){
         super();
     }

@@ -25,9 +25,12 @@ public class MainInformationServiceTest {
 
     @Test
     public void savingNewGamesWork() {
-        Game game = new Game("Doom 3", 2004, "Horror");
+        Game game = new Game("Doom 3", 2004, "Horror", 4000);
         when(gameRepository.save(any(Game.class))).then(returnsFirstArg());
         Game savedGame = mainInformationService.addNewGame(game);
-        assertThat(savedGame.equals(game));
+        assertThat(savedGame.getPrice().equals(game.getPrice()+game.getPrice()*0.27));
+        assertThat(savedGame.getGenre().equals(game.getGenre()));
+        assertThat(savedGame.getReleaseYear().equals(game.getReleaseYear()));
+        assertThat(savedGame.getTitle().equals(game.getTitle()));
     }
 }

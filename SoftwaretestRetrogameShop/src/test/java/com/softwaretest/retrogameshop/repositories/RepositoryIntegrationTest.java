@@ -2,14 +2,11 @@ package com.softwaretest.retrogameshop.repositories;
 
 import com.softwaretest.retrogameshop.models.Customer;
 import com.softwaretest.retrogameshop.models.Game;
-import com.softwaretest.retrogameshop.repositories.GameRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,9 +14,6 @@ import java.util.List;
 @ExtendWith(SpringExtension.class)
 @DataJpaTest
 public class RepositoryIntegrationTest {
-
-    @Autowired
-    private TestEntityManager testEntityManager;
 
     @Autowired
     private GameRepository gameRepository;
@@ -31,7 +25,6 @@ public class RepositoryIntegrationTest {
     public void addPlainGame(){
         Game game = new Game("Doom", 1993, "Action, horror", 3000);
         gameRepository.save(game);
-        //game.setGenre("Romantic");
         List<Game> games = gameRepository.findAll();
         assert games.get(0).getTitle().equals(game.getTitle());
         assert games.get(0).getGenre().equals(game.getGenre());
