@@ -15,6 +15,7 @@ public class Game {
     private String title;
     private Integer releaseYear;
     private String genre;
+    private Integer price;
     @ManyToMany
     @JoinTable(
             name = "purchases",
@@ -27,10 +28,11 @@ public class Game {
         super();
     }
 
-    public Game(String title, Integer releaseYear, String genre){
+    public Game(String title, Integer releaseYear, String genre, Integer price){
         this.title = title;
         this.releaseYear = releaseYear;
         this.genre = genre;
+        this.price = price;
     }
 
     @Override
@@ -41,9 +43,10 @@ public class Game {
         else{
             Game game = (Game) obj;
             if(
-                            game.getGenre().equals(this.genre) &&
-                            game.getReleaseYear().equals(this.getReleaseYear()) &&
-                            game.getTitle().equals(this.getTitle())
+                game.getGenre().equals(this.genre) &&
+                game.getReleaseYear().equals(this.getReleaseYear()) &&
+                game.getTitle().equals(this.getTitle()) &&
+                game.getPrice().equals(this.getPrice())
             ){
                 return true;
             }
@@ -89,5 +92,13 @@ public class Game {
 
     public void setPurchases(List<Customer> purchases) {
         this.purchases = purchases;
+    }
+
+    public Integer getPrice() {
+        return price;
+    }
+
+    public void setPrice(Integer price) {
+        this.price = price;
     }
 }

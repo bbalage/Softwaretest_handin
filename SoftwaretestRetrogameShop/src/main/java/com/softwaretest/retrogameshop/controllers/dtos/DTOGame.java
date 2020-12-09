@@ -10,31 +10,35 @@ public class DTOGame {
     private String title;
     private Integer releaseYear;
     private String genre;
+    private Integer price;
     List<Long> customerIds;
 
     public DTOGame(){
         super();
     }
 
-    public DTOGame(Long id, String title, Integer releaseYear, String genre, List<Long> customerIds){
+    public DTOGame(Long id, String title, Integer releaseYear, String genre, Integer price, List<Long> customerIds){
         this.id = id;
         this.title = title;
         this.releaseYear = releaseYear;
         this.genre = genre;
         this.customerIds = customerIds;
+        this.price = price;
     }
 
-    public DTOGame(Long id, String title, Integer releaseYear, String genre){
+    public DTOGame(Long id, String title, Integer releaseYear, String genre, Integer price){
         this.id = id;
         this.title = title;
         this.releaseYear = releaseYear;
         this.genre = genre;
+        this.price = price;
     }
 
-    public DTOGame(String title, Integer releaseYear, String genre){
+    public DTOGame(String title, Integer releaseYear, String genre, Integer price){
         this.title = title;
         this.releaseYear = releaseYear;
         this.genre = genre;
+        this.price = price;
     }
 
     public Long getId() {
@@ -75,5 +79,13 @@ public class DTOGame {
 
     public void setCustomerIds(List<Long> customerIds){
         this.customerIds = customerIds;
+    }
+
+    public Integer getPrice() {
+        return price;
+    }
+
+    public void setPrice(Integer price) {
+        this.price = price;
     }
 }

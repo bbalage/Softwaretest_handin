@@ -39,7 +39,7 @@ class RetroGameShopApplicationTests {
 
     @Test
     void addNewGameWorksThroughAllLayers() throws Exception{
-        DTOGame dtoGame = new DTOGame("Pacman", 1980, "Skill");
+        DTOGame dtoGame = new DTOGame("Pacman", 1980, "Skill", 500);
 
         mockMvc.perform(post("/rest/add-game")
                 .with(user("n5if3v").roles("USER"))

@@ -29,7 +29,7 @@ public class RepositoryIntegrationTest {
 
     @Test
     public void addPlainGame(){
-        Game game = new Game("Doom", 1993, "Action, horror");
+        Game game = new Game("Doom", 1993, "Action, horror", 3000);
         gameRepository.save(game);
         //game.setGenre("Romantic");
         List<Game> games = gameRepository.findAll();
@@ -52,8 +52,8 @@ public class RepositoryIntegrationTest {
 
     @Test
     public void addRelationship(){
-        Game game1 = new Game("Doom", 1993, "Action, horror");
-        Game game2 = new Game("Pacman", 1980, "Skill");
+        Game game1 = new Game("Doom", 1993, "Action, horror", 3000);
+        Game game2 = new Game("Pacman", 1980, "Skill", 500);
         Customer customer1 = new Customer("Bolyki Balázs", "Ózd", "+36303083030");
         Customer customer2 = new Customer("Alex Twin", "Iceland", "+36301234567");
         List<Game> purchases = new ArrayList<>();

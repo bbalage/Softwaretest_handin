@@ -13,7 +13,8 @@ public class DTOGameTransformer {
         Game game = new Game(
                 dtoGame.getTitle(),
                 dtoGame.getReleaseYear(),
-                dtoGame.getGenre()
+                dtoGame.getGenre(),
+                dtoGame.getPrice()
         );
         return game;
     }
@@ -28,6 +29,7 @@ public class DTOGameTransformer {
                 game.getTitle(),
                 game.getReleaseYear(),
                 game.getGenre(),
+                game.getPrice(),
                 foreignIds
         );
         return dtoGame;
